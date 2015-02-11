@@ -12,6 +12,7 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     private final static String TAG = "VirtualFileSystemTest";
 
     private VirtualFileSystem vfs;
+    private String path;
     private String goodPassword = "this is the right password";
     private String badPassword = "this soooo not the right password, its wrong";
     private byte[] goodKey = {
@@ -44,13 +45,12 @@ public class VirtualFileSystemTest extends AndroidTestCase {
 
     @Override
     protected void setUp() {
-        String path = mContext.getDir("vfs", Context.MODE_PRIVATE).getAbsolutePath()
+        path = mContext.getDir("vfs", Context.MODE_PRIVATE).getAbsolutePath()
                 + "/" + TAG + ".db";
         java.io.File db = new java.io.File(path);
         if (db.exists())
             db.delete();
         vfs = VirtualFileSystem.get();
-        vfs.setContainerPath(path);
     }
 
     @Override
@@ -58,6 +58,8 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testInitMountUnmount() {
+        vfs.setContainerPath(path);
+        vfs.createNewContainer(goodPassword);
         vfs.mount(goodPassword);
         if (vfs.isMounted()) {
             Log.i(TAG, "vfs is mounted");
@@ -69,6 +71,8 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testInitMountMkdirUnmount() {
+        vfs.setContainerPath(path);
+        vfs.createNewContainer(goodPassword);
         vfs.mount(goodPassword);
         if (vfs.isMounted()) {
             Log.i(TAG, "vfs is mounted");
@@ -80,9 +84,11 @@ public class VirtualFileSystemTest extends AndroidTestCase {
         vfs.unmount();
     }
 
-    public void testMountCreateUnmountMountExists() {
+    public void testCreateMountUnmountMountExists() {
+        vfs.setContainerPath(path);
+        vfs.createNewContainer(goodPassword);
         vfs.mount(goodPassword);
-        File f = new File("/testMountCreateUnmountMountExists."
+        File f = new File("/testCreateMountUnmountMountExists."
                 + Integer.toString((int) (Math.random() * 1024)));
         try {
             f.createNewFile();
@@ -97,6 +103,7 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testMountPasswordWithBadPassword() {
+        vfs.createNewContainer(path, goodPassword);
         vfs.mount(goodPassword);
         File d = new File("/");
         for (String f : d.list()) {
@@ -119,6 +126,8 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testMountKeyWithBadKey() {
+        vfs.setContainerPath(path);
+        vfs.createNewContainer(goodKey);
         Log.i(TAG, "goodKey length: " + goodKey.length);
         Log.i(TAG, "badKey length: " + badKey.length);
         vfs.mount(goodKey);
@@ -143,6 +152,7 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testMountKeyWithTooLongKey() {
+        vfs.createNewContainer(path, goodKey);
         Log.i(TAG, "goodKey length: " + goodKey.length);
         Log.i(TAG, "tooLongKey length: " + tooLongKey.length);
         vfs.mount(goodKey);
@@ -167,6 +177,7 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testMountKeyWithTooShortKey() {
+        vfs.createNewContainer(path, goodKey);
         Log.i(TAG, "goodKey length: " + goodKey.length);
         Log.i(TAG, "tooShortKey length: " + tooShortKey.length);
         vfs.mount(goodKey);
@@ -191,9 +202,11 @@ public class VirtualFileSystemTest extends AndroidTestCase {
     }
 
     public void testMountKeyWithZeroedKey() {
+        vfs.setContainerPath(path);
         byte[] keyCopy = new byte[goodKey.length];
         for (int i = 0; i < goodKey.length; i++)
             keyCopy[i] = goodKey[i];
+        vfs.createNewContainer(keyCopy);
         vfs.mount(keyCopy);
         File d = new File("/");
         for (String f : d.list()) {

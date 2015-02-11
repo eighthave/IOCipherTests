@@ -47,6 +47,7 @@ public class CipherFileTest extends AndroidTestCase {
         Log.v(TAG, "Creating new database file: " + db.getAbsolutePath());
         vfs = VirtualFileSystem.get();
         vfs.setContainerPath(path);
+        vfs.createNewContainer(goodPassword);
         Log.v(TAG, "Mounting:");
         vfs.mount(goodPassword);
         ROOT = new File("/");
