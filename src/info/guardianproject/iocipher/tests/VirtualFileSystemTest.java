@@ -229,4 +229,81 @@ public class VirtualFileSystemTest extends AndroidTestCase {
         }
         fail();
     }
+
+    public void testNoWritePermsInDir() {
+        try {
+            vfs.setContainerPath("/file-to-create-here");
+        } catch (IllegalArgumentException e) {
+            // it is correct to throw this
+            return;
+        }
+        fail();
+    }
+
+    public void testMountKeyNonExistentFile() {
+        try {
+            vfs.setContainerPath("/foo/bar/this/does/not/exist");
+        } catch (IllegalArgumentException e) {
+            // it is correct to throw this
+            return;
+        }
+        fail();
+    }
+
+    public void testSetGetContainerPath() {
+        vfs.setContainerPath(path);
+        assertTrue(path.equals(vfs.getContainerPath()));
+    }
+
+    public void testMountAfterFileDeleted() {
+        vfs.setContainerPath(path);
+        vfs.createNewContainer(goodKey);
+        vfs.mount(goodKey);
+        File d = new File(path);
+        assertTrue(d.mkdir());
+        vfs.unmount();
+        java.io.File containerFile = new java.io.File(vfs.getContainerPath());
+        assertTrue(containerFile.exists());
+        containerFile.delete();
+        assertFalse(containerFile.exists());
+        try {
+            vfs.mount(goodKey);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+        fail();
+    }
+
+    public void testMountWithoutCreate() {
+        vfs.setContainerPath(path);
+        try {
+            vfs.mount(goodKey);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+        fail();
+    }
+
+    public void testMountWithoutCreateSeparat() {
+        vfs.setContainerPath(path);
+        try {
+            vfs.mount(goodKey);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+        fail();
+    }
+
+    public void testMountWithoutCreateAtOnce() {
+        try {
+            vfs.mount(path, goodKey);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+        fail();
+    }
 }
